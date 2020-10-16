@@ -12,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JToggleButton;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
+
 import java.awt.GridBagConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -20,6 +23,8 @@ import com.jgoodies.forms.layout.FormSpecs;
 import javax.swing.JCheckBox;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JTextPane;
+import javax.swing.JScrollPane;
 
 public class MainWindow implements ActionListener {
 
@@ -35,11 +40,14 @@ public class MainWindow implements ActionListener {
 	private JTextField textAOL;
 	private JTextField textLaunchVel;
 	private JTextField textAccY;
+	public JTextPane Solutions;
 	JTextField[] textArr;
-	
+	StyledDocument Sol;
+	float[] input = new float[10];
 
 	static boolean[] selected = new boolean[] { false, false, false, false, false, false, false, false, false, false,
 			false };
+	private JScrollPane scrollPane;
 
 	/**
 	 * Launch the application.
@@ -66,26 +74,26 @@ public class MainWindow implements ActionListener {
 
 	/**
 	 * Initialize the contents of the frame.
-	 * @param textArr 
+	 * 
+	 * @param textArr
 	 */
 	private JTextField[] initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 541);
+		frame.setBounds(100, 100, 666, 541);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane()
-				.setLayout(new FormLayout(
-						new ColumnSpec[] { FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"),
-								FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"), },
-						new RowSpec[] { FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-								FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
-								FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-								FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
-								FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-								FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
-								FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-								FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
-								FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
-								FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, }));
+		frame.getContentPane().setLayout(new FormLayout(
+				new ColumnSpec[] { FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"),
+						FormSpecs.RELATED_GAP_COLSPEC, ColumnSpec.decode("default:grow"), },
+				new RowSpec[] { FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
+						FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+						FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
+						FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+						FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
+						FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+						FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC,
+						FormSpecs.DEFAULT_ROWSPEC, FormSpecs.RELATED_GAP_ROWSPEC, FormSpecs.DEFAULT_ROWSPEC,
+						FormSpecs.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"), FormSpecs.RELATED_GAP_ROWSPEC,
+						FormSpecs.DEFAULT_ROWSPEC, }));
 
 		JButton btnStartSolving = new JButton("Solve");
 		frame.getContentPane().add(btnStartSolving, "2, 2, left, default");
@@ -179,6 +187,15 @@ public class MainWindow implements ActionListener {
 		JCheckBox chckbxEndY = new JCheckBox("Ending Y");
 		frame.getContentPane().add(chckbxEndY, "4, 24");
 
+		scrollPane = new JScrollPane();
+		frame.getContentPane().add(scrollPane, "2, 26, 3, 3, fill, fill");
+
+		Solutions = new JTextPane();
+		scrollPane.setViewportView(Solutions);
+		Solutions.setEditable(false);
+		Solutions.setText("Solutions Here");
+		Sol = Solutions.getStyledDocument();
+
 		chckbxEndY.addActionListener(this);
 		chckbxEndX.addActionListener(this);
 		chckbxInitY.addActionListener(this);
@@ -190,9 +207,10 @@ public class MainWindow implements ActionListener {
 		chckbxTime.addActionListener(this);
 		chckbxAccelerationY.addActionListener(this);
 		chckbxAccelerationX.addActionListener(this);
-		
-		return new JTextField[] { textAccX, textAccY, textTime, textAOL, textLaunchVel, textVelX,
-				textVelY, textInitX, textInitY, textEndX, textEndY };
+		btnStartSolving.addActionListener(this);
+
+		return new JTextField[] { textAccX, textAccY, textTime, textAOL, textLaunchVel, textVelX, textVelY, textInitX,
+				textInitY, textEndX, textEndY };
 
 	}
 
@@ -233,17 +251,39 @@ public class MainWindow implements ActionListener {
 		case "Ending Y":
 			selected[10] = !selected[10];
 			break;
+		case "Solve":
+			startSolve();
+			break;
 		}
 
 		updateAcces();
 	}
 
+	private void startSolve() {
+		for (int i = 0; i <= selected.length - 1; i++) {
+			if ((selected[i] == true) && (!textArr[i].getText().isEmpty())) {
+				String temp = textArr[i].getText();
+				try {
+					input[i] = Float.valueOf(temp);
+				} catch (NumberFormatException nfe) {
+					textArr[i].setText("Not a number");
+					break;
+				}
+				try {
+					Sol.insertString(0, String.valueOf(input[i]) + "\n", null);
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+	}
+
 	private void updateAcces() {
-		System.out.println("Updating");
-		for (int i = 0; i <= selected.length-1; i++) {
+		for (int i = 0; i <= selected.length - 1; i++) {
 			if (selected[i] == false) {
 				textArr[i].setEditable(false);
-			}else {
+			} else {
 				textArr[i].setEditable(true);
 			}
 		}
