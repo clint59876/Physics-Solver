@@ -43,7 +43,7 @@ public class MainWindow implements ActionListener {
 	public JTextPane Solutions;
 	JTextField[] textArr;
 	StyledDocument Sol;
-	float[] input = new float[10];
+	float[] input = new float[] {0,0,0,0,0,0,0,0,0,0,0};
 
 	static boolean[] selected = new boolean[] { false, false, false, false, false, false, false, false, false, false,
 			false };
@@ -99,6 +99,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(btnStartSolving, "2, 2, left, default");
 
 		textAccX = new JTextField();
+		textAccX.setText("o");
 		textAccX.setEditable(false);
 		frame.getContentPane().add(textAccX, "2, 4, fill, default");
 		textAccX.setColumns(10);
@@ -108,7 +109,7 @@ public class MainWindow implements ActionListener {
 
 		textAccY = new JTextField();
 		textAccY.setEditable(false);
-		textAccY.setText("9.8");
+		textAccY.setText("o");
 		textAccY.setColumns(10);
 		frame.getContentPane().add(textAccY, "2, 6, fill, default");
 
@@ -116,6 +117,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxAccelerationY, "4, 6");
 
 		textTime = new JTextField();
+		textTime.setText("o");
 		textTime.setEditable(false);
 		textTime.setColumns(10);
 		frame.getContentPane().add(textTime, "2, 8, fill, default");
@@ -124,6 +126,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxTime, "4, 8");
 
 		textAOL = new JTextField();
+		textAOL.setText("o");
 		textAOL.setEditable(false);
 		textAOL.setColumns(10);
 		frame.getContentPane().add(textAOL, "2, 10, fill, default");
@@ -132,6 +135,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxAngOfLaunch, "4, 10");
 
 		textLaunchVel = new JTextField();
+		textLaunchVel.setText("o");
 		textLaunchVel.setEditable(false);
 		textLaunchVel.setColumns(10);
 		frame.getContentPane().add(textLaunchVel, "2, 12, fill, default");
@@ -140,6 +144,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxLaunchVel, "4, 12");
 
 		textVelX = new JTextField();
+		textVelX.setText("o");
 		textVelX.setEditable(false);
 		textVelX.setColumns(10);
 		frame.getContentPane().add(textVelX, "2, 14, fill, default");
@@ -148,6 +153,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxVelocityX, "4, 14");
 
 		textVelY = new JTextField();
+		textVelY.setText("o");
 		textVelY.setEditable(false);
 		textVelY.setColumns(10);
 		frame.getContentPane().add(textVelY, "2, 16, fill, default");
@@ -156,6 +162,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxVelocityY, "4, 16");
 
 		textInitX = new JTextField();
+		textInitX.setText("o");
 		textInitX.setEditable(false);
 		textInitX.setColumns(10);
 		frame.getContentPane().add(textInitX, "2, 18, fill, default");
@@ -164,6 +171,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxInitX, "4, 18");
 
 		textInitY = new JTextField();
+		textInitY.setText("o");
 		textInitY.setEditable(false);
 		textInitY.setColumns(10);
 		frame.getContentPane().add(textInitY, "2, 20, fill, default");
@@ -172,6 +180,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxInitY, "4, 20");
 
 		textEndX = new JTextField();
+		textEndX.setText("o");
 		textEndX.setEditable(false);
 		textEndX.setColumns(10);
 		frame.getContentPane().add(textEndX, "2, 22, fill, default");
@@ -180,6 +189,7 @@ public class MainWindow implements ActionListener {
 		frame.getContentPane().add(chckbxEndX, "4, 22");
 
 		textEndY = new JTextField();
+		textEndY.setText("o");
 		textEndY.setEditable(false);
 		textEndY.setColumns(10);
 		frame.getContentPane().add(textEndY, "2, 24, fill, default");
@@ -269,13 +279,17 @@ public class MainWindow implements ActionListener {
 					textArr[i].setText("Not a number");
 					break;
 				}
-				try {
-					Sol.insertString(0, String.valueOf(input[i]) + "\n", null);
-				} catch (BadLocationException e) {
-					e.printStackTrace();
-				}
+			}else {
+				input[i] = 0;
 			}
 
+		}
+		Calculations calculate = new Calculations(input, selected);
+		try {
+			Solutions.setText("");
+			Sol.insertString(0, calculate.calculate(), null);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
 		}
 	}
 
